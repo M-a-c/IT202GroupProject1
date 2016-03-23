@@ -106,25 +106,7 @@
 			</div>
 
 			<script type="text/javascript">
-				var c = document.getElementById("Heat");
-				
-				// test();
-				drawBoxes(c,20,10);
-
-
-				// ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
-				// ctx.fillRect(0,0,100,100);
-				// ctx.fillStyle = "rgba(255, 0, 255, 0.5)";
-				// ctx.fillRect(0,0,c.width,c.height);
-				console.log("w: "+c.width);
-				console.log("h: "+c.height);
-
-				console.log("doc w: "+window.getComputedStyle(document.getElementById("mHeat")).width);
-				console.log("doc h: "+$('#mHeat').height());
-				// ctx.fillStyle = "rgba(0, 0, 255, 0.5)";
-				// ctx.fillRect(0,0,ctx.width,ctx.height);
-
-
+				var heatMap = document.getElementById("Heat");
 			</script>
 
 
@@ -159,20 +141,7 @@
 			</div>
 		</div>
 		<script type="text/javascript">
-			var c = document.getElementById("Humidity");
-			drawBoxes(c,80,40);
-			var ctx = c.getContext("2d");
-			ctx.fillStyle = "#FF0000";
-			// ctx.fillRect(0,0,75,75);
-			ctx.fillRect(68*75,1*75,75,75);//ACM (68,1)
-			ctx.fillRect(71*75,2*75,75,75);//Server Room (71,2)
-			ctx.fillRect(72*75,38*75,75,75);//Wics Room (72,38)
-			ctx.fillRect(33*75,19*75,75,75);//CS Lounge (33,19)
-
-			ctx.fillRect()
-			// ctx.rect(304,0,300,300);
-			ctx.stroke();
-
+			var humidMap = document.getElementById("Humidity");
 		</script>
 
 		<p><a href="#one" data-direction="reverse" class="ui-btn ui-shadow ui-corner-all ui-btn-b">Main Page</a></p>
@@ -194,8 +163,11 @@
 	</div><!-- /header -->
 
 	<div role="main" class="ui-content">
-
-		<p><a href="#one" data-direction="reverse" class="ui-btn ui-shadow ui-corner-all ui-btn-b">Main Page</a></p>
+		<p>
+			<a href="#one" data-direction="reverse" class="ui-btn ui-shadow ui-corner-all ui-btn-b">
+				Main Page
+			</a>
+		</p>
 	</div><!-- /content -->
 
 	<div data-role="footer">
@@ -203,7 +175,40 @@
 	</div><!-- /footer -->
 </div><!-- /page four -->
 
+<script type="text/javascript">
 
+
+	// humidMap.fillStyle = "#FF0000";
+	// ctx.fillRect(0,0,75,75);
+	addSensor(68,1,1,"ACM");//ACM (68,1)
+	addSensor(71,2,2,"Server Room");//Server Room (71,2)
+	addSensor(72,38,3,"Wics Room");//Wics Room (72,38)
+	addSensor(33,19,4,"CS Lounge");//CS Lounge (33,19)
+
+	console.log("here");
+	drawBoxes(80,40);
+
+	updateAll();
+	// humidMap.stroke();
+
+	// test();
+
+	// // ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
+	// // ctx.fillRect(0,0,100,100);
+	// // ctx.fillStyle = "rgba(255, 0, 255, 0.5)";
+	// // ctx.fillRect(0,0,c.width,c.height);
+	// console.log("w: "+c.width);
+	// console.log("h: "+c.height);
+
+	// console.log("doc w: "+window.getComputedStyle(document.getElementById("mHeat")).width);
+	// console.log("doc h: "+$('#mHeat').height());
+	// // ctx.fillStyle = "rgba(0, 0, 255, 0.5)";
+	// // ctx.fillRect(0,0,ctx.width,ctx.height);
+
+
+
+
+</script>
 
 </body>
 </html>
