@@ -32,10 +32,10 @@ def readDHT22(pin, show=False):
 
 def googlePOST(temperature, humidity):
     flow = client.flow_from_clientsecrets(
-	config.get('Config', 'client_secrets_file'),
+	filepath+'/'+config.get('Config', 'client_secrets_file'),
     scope='https://www.googleapis.com/auth/fusiontables')
     http = httplib2.Http()
-    storage = Storage('sec_storage.enc')
+    storage = Storage(filepath + '/' + 'sec_storage.enc')
     parser = argparse.ArgumentParser(parents=[tools.argparser])
     flags = parser.parse_args()
     if(storage.get()):
