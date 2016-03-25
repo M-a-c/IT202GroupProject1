@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Requirement: Python 2.7
+# Requirements: Python 2.7, Adafruit_DHT, Google Python API
 
 import Adafruit_DHT
 import httplib2
@@ -22,6 +22,7 @@ flags = parser.parse_args()
 config = ConfigParser.ConfigParser()
 config.read(filepath + '/' + '.env')
 
+# Function to return a tuple with a readout from the sensor: (temperature, humidity)
 def readDHT22(pin, show=False):
     sensor = Adafruit_DHT.DHT22
     humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
@@ -32,6 +33,7 @@ def readDHT22(pin, show=False):
     else:
         print 'Failed to get reading. Try again!'
 
+# Function to send data to google via OAuth2 and the Google Python API.
 def googlePOST(temperature, humidity):
     flow = client.flow_from_clientsecrets(
 	filepath+'/'+config.get('Config', 'client_secrets_file'),
@@ -51,6 +53,7 @@ def googlePOST(temperature, humidity):
     sqlstring = "INSERT INTO {:s} (nodeid, temperature, humidity, date) VALUES ({:d}, {:f}, {:f}, '{:s}');".format(config.get('Config', 'table_id'), 1, temperature, humidity, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     query.sql(sql=sqlstring).execute()
 
+# Main function to read sensor, send data, and exit gracefully.
 def main():
     temp, hum = readDHT22(4)
     googlePOST(temp, hum)
