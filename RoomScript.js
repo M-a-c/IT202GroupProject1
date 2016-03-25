@@ -215,7 +215,7 @@ function populateRawData() {
 	$('#noderawview').empty();
     $.each(masterPoints, function (index, value) {
 		var header = '<h3 class="ui-bar ui-bar-a">Node #' + value.no + ', ' + value.name;
-		var body = '<div class="ui-grid-b"><div class="ui-block-a"><h3>Temperature:</h3><h1>' + value.tempTemperature + '&#176;C</h1></div><div class="ui-block-b"><h3>Humidity:</h3><h1>' + value.tempHumidity + '%</h1></div></div>';
+		var body = '<div class="ui-grid-b"><div class="ui-block-a"><h3>Temperature:</h3><h1>' + Math.round(value.tempTemperature*100)/100 + '&#176;C</h1></div><div class="ui-block-b"><h3>Humidity:</h3><h1>' + Math.round(value.tempHumidity*100)/100 + '%</h1></div></div>';
 		// Why this line below doesn't work... is weird. 
 		//var header = $('h3').addClass('ui-bar ui-bar-a').text('Node #' + value.no + ', ' + value.name);
         $('#noderawview').append(header);
