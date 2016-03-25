@@ -38,7 +38,7 @@ Installation
  6. In the /nodes directory, download the clients secret json file from the Google Developer Console.
  7. Copy .env_example to .env and change the values in that configuration file.
  8. Copy ambientReport.service and ambientReport.timer into `/usr/lib/systemd/system/`.
- 9. Enable and start the timer: `sudo systemtctl enable ambientReport.timer && sudo systemctl start ambientReport.service`
+ 9. Enable and start the timer: `sudo systemctl enable ambientReport.timer && sudo systemctl start ambientReport.timer`
 
 
 Running

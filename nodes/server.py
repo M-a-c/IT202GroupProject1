@@ -50,7 +50,7 @@ def googlePOST(temperature, humidity):
     http_auth = credentials.authorize(http)
     service = build('fusiontables', 'v2',developerKey=config.get('Config', 'google_api_key'), http=http_auth)
     query = service.query()
-    sqlstring = "INSERT INTO {:s} (nodeid, temperature, humidity, date) VALUES ({:d}, {:f}, {:f}, '{:s}');".format(config.get('Config', 'table_id'), 1, temperature, humidity, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    sqlstring = "INSERT INTO {:s} (nodeid, temperature, humidity, date) VALUES ({:d}, {:f}, {:f}, '{:s}');".format(config.get('Config', 'table_id'), int(config.get('Config', 'node_id')), temperature, humidity, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     query.sql(sql=sqlstring).execute()
 
 # Main function to read sensor, send data, and exit gracefully.
