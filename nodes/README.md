@@ -16,6 +16,13 @@ Requirements / Dependencies
  * Python-dev
  * Python-openssl
  * Google API Python Client (https://pypi.python.org/pypi/google-api-python-client/)
+   * httplib2<1,>=0.8
+   * uritemplate<1,>=0.6
+   * oauth2client<3,>=2.0.0
+   * pyasn1>=0.1.7
+   * pyasn1-modules>=0.0.5
+   * rsa>=3.1.4
+   * simplejson>=2.5.0
 
 
 Installation
@@ -25,10 +32,13 @@ Installation
  2. Install Pip or easy_install for easy Python package management.
  3. Install python_dev & python_openssl via your distribution's package manager or pip/easy_install.
  4. Clone Adafruit_Python_DHT library (See github link in requirement section above)
- 5. Change directory into the Adafruit_Python_DHT library and run the following: `sudo python setup.py install`
+ 5. Change directory into the Adafruit_Python_DHT library and run the following: `sudo python2 setup.py install`
     Make sure you follow any prompts that the install may give you.
+ 6. Install Google API Python Client: `pip2 install --upgrade google-api-python-client`
  6. In the /nodes directory, download the clients secret json file from the Google Developer Console.
  7. Copy .env_example to .env and change the values in that configuration file.
+ 8. Copy ambientReport.service and ambientReport.timer into `/usr/lib/systemd/system/`.
+ 9. Enable and start the timer: `sudo systemtctl enable ambientReport.timer && sudo systemctl start ambientReport.service`
 
 
 Running
@@ -48,7 +58,7 @@ On Archlinux, you can use Systemd/Timers:
 
  1. Copy ambientReport.timer and ambientReport.service into /usr/lib/systemd/system/. (This will install a service to run the server every minute)
  2. Adjust and verify the paths referenced in ambientReport.service.
-
+ 3. Enable and start the timer: `sudo systemtctl enable ambientReport.timer && sudo systemctl start ambientReport.service`
 
 Configuration Setup
 -------------------
