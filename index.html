@@ -163,6 +163,9 @@
 	</div><!-- /header -->
 
 	<div role="main" class="ui-content">
+		<div id="noderawview">
+
+		</div>
 		<p>
 			<a href="#one" data-direction="reverse" class="ui-btn ui-shadow ui-corner-all ui-btn-b">
 				Main Page
@@ -182,7 +185,7 @@
 	// ctx.fillRect(0,0,75,75);
 	addSensor(68,1,1,"ACM");//ACM (68,1)
 	addSensor(71,2,2,"Server Room");//Server Room (71,2)
-	addSensor(72,38,3,"Wics Room");//Wics Room (72,38)
+	addSensor(72,38,3,"WiCS Room");//Wics Room (72,38)
 	addSensor(33,19,4,"CS Lounge");//CS Lounge (33,19)
 
 	console.log("here");
@@ -205,8 +208,15 @@
 	// // ctx.fillStyle = "rgba(0, 0, 255, 0.5)";
 	// // ctx.fillRect(0,0,ctx.width,ctx.height);
 
+	$(document).ready(function() {
+		console.log($( "body" ).pagecontainer("getActivePage"));
 
-
+		$( ":mobile-pagecontainer" ).on( "pagecontainershow", function( event, ui ) {
+			  if ($.mobile.activePage.attr('id')  == 'four') {
+				populateRawData();
+			  }
+		});
+	});
 
 </script>
 

@@ -16,29 +16,46 @@ var temp=30;
 /********************************/
 /*								*/
 /*	Read temperature data and 	*/
-/*	other data in funcitons		*/
+/*	other data in functions		*/
 /*			below.				*/
 /*								*/
 /********************************/
 
+function asyncHandleData(nodeid, attr, val) {
+	// Find object and update attribute.
+	// attr 1 = Temperature, attr 0 = Humidity
+	$.each(masterPoints, function( index, value ) {
+		if (masterPoints[index].no == nodeid) {
+			if (attr == 0) {
+				masterPoints[index].tempHumidity = val;
+			}else if (attr == 1) {
+				masterPoints[index].tempTemperature = val;
+			}
+		}
+	});
+
+}
+
 function getTemperature(no){
     //Make some request.
     var query = "https://www.googleapis.com/fusiontables/v2/query?sql=SELECT%20temperature%20from%201ioYhIVWgWbysIz4ltA9gR5c_D-sSwVd1QIsZTygg%20WHERE%20nodeid=" + no + "%20ORDER%20BY%20date%20DESC%20LIMIT%201&key=AIzaSyCdl04mmrgRkoxyDgXIRC5cvRaAUJ7d4hk";
-    $.get(query, function (data) {
+    var req = $.get(query, function (data) {
         console.log("temperature request for node: " + no + ", " + data.rows[0][0]);
-        return data.rows[0][0];
-    });
-    return -1;
+		asyncHandleData(no, 1, data.rows[0][0]);
+	}).fail(function() {
+		return req;	
+	});
 }
 
 function getHumidity(no){
     //Make some request.
     var query = "https://www.googleapis.com/fusiontables/v2/query?sql=SELECT%20humidity%20from%201ioYhIVWgWbysIz4ltA9gR5c_D-sSwVd1QIsZTygg%20WHERE%20nodeid=" + no + "%20ORDER%20BY%20date%20DESC%20LIMIT%201&key=AIzaSyCdl04mmrgRkoxyDgXIRC5cvRaAUJ7d4hk";
-    $.get(query, function (data) {
+    var req = $.get(query, function (data) {
         console.log("humidity request for node: " + no + ", " + data.rows[0][0]);
-        return data.rows[0][0];
-    });
-    return -1;
+        asyncHandleData(no, 0, data.rows[0][0]);
+    }).fail(function() {
+		return req;	
+	});
 }
 
 
@@ -63,8 +80,10 @@ function addSensor(x,y,no,name){
 
 	var tempHumidity = getHumidity(no);
 	var tempTemperature = getTemperature(no);
-
-	masterPoints.push({x,y,no,name, tempHumidity, tempTemperature, distance: 0, fraciton: 0 });
+	// Because the get methods are asynchronous, we need to push this after the promise() has been fulfilled.
+	$.when(tempHumidity, tempTemperature).done(function(humi, temp) {
+		masterPoints.push({x,y,no,name, tempHumidity: humi, tempTemperature: temp, distance: 0, fraciton: 0 });
+	});
 }
 
 function interpolateHumidity(ctx,x,y){
@@ -191,7 +210,18 @@ function updateMap(){
 }
 
 
-
+function populateRawData() {
+    //Using the Master Points array, populate the data onto the DOM.
+	$('#noderawview').empty();
+    $.each(masterPoints, function (index, value) {
+		var header = '<h3 class="ui-bar ui-bar-a">Node #' + value.no + ', ' + value.name;
+		var body = '<div class="ui-grid-b"><div class="ui-block-a"><h3>Temperature:</h3><h1>' + value.tempTemperature + '&#176;C</h1></div><div class="ui-block-b"><h3>Humidity:</h3><h1>' + value.tempHumidity + '%</h1></div></div>';
+		// Why this line below doesn't work... is weird. 
+		//var header = $('h3').addClass('ui-bar ui-bar-a').text('Node #' + value.no + ', ' + value.name);
+        $('#noderawview').append(header);
+        $('#noderawview').append(body);
+	});
+}
 
 
 humidColorArray = [];
