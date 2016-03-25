@@ -18,7 +18,7 @@ parser = argparse.ArgumentParser(parents=[tools.argparser])
 flags = parser.parse_args()
 
 config = ConfigParser.ConfigParser()
-config.read(filepath + '.env')
+config.read(filepath + '/' + '.env')
 
 def readDHT22(pin, show=False):
     sensor = Adafruit_DHT.DHT22
