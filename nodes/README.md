@@ -48,4 +48,34 @@ On Archlinux, you can use Systemd/Timers:
 
  1. Copy ambientReport.timer and ambientReport.service into /usr/lib/systemd/system/. (This will install a service to run the server every minute)
  2. Adjust and verify the paths referenced in ambientReport.service.
- 
+
+
+Configuration Setup
+-------------------
+
+In order for the server to successfully connect to the Google Fusions Tables, we need to setup proper configuration settings.
+
+Most of the configuration of the server is controlled within the `.env` file.
+You may make a copy of `.env_example` to create the `.env` file.
+
+Here are descriptions of each used property in `.env`:
+
+**google_api_key** - This API key is obtained by going to the API Credential Manager within the Google Developer Console and creating a *Server Key* API Key.
+
+**table_id** - This is the unique ID for the Google Fusion Table. Note that the user you use to create the client_secrets and API keys will need to have write access to this table.  The unique ID is found in the *docid* parameter in the URL of the Fusion Table.
+
+**client_secrets_file** - This JSON file is created by yet another credential created in the API Manager section of the Google Developer Console.  You will create this by creating a *OAuth client ID* and selecting an Application Type of *Other*.  Download the JSON file that the console produces and place it in the same directory as the `.env` file.
+
+**node_id** - Specifies which node number is reported in the Google Fusion Table.
+
+
+Google Fusion Table Setup
+-------------------------
+
+The Google Fusion Table should have the following columns:
+
+[Column Name] - [Type]
+ * nodeid - Number
+ * temperature - Number
+ * humidity - Number
+ * date - Date/Time
