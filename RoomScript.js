@@ -22,14 +22,23 @@ var temp=30;
 /********************************/
 
 function getTemperature(no){
-	//Make some request.
-	temp = temp+9;
-	return temp+9;
+    //Make some request.
+    var query = "https://www.googleapis.com/fusiontables/v2/query?sql=SELECT%20temperature%20from%201ioYhIVWgWbysIz4ltA9gR5c_D-sSwVd1QIsZTygg%20WHERE%20nodeid=" + no + "%20ORDER%20BY%20date%20DESC%20LIMIT%201&key=AIzaSyCdl04mmrgRkoxyDgXIRC5cvRaAUJ7d4hk";
+    $.get(query, function (data) {
+        console.log("temperature request for node: " + no + ", " + data.rows[0][0]);
+        return data.rows[0][0];
+    });
+    return -1;
 }
+
 function getHumidity(no){
-	//Make some request.
-	temp = temp+9;
-	return temp+9;
+    //Make some request.
+    var query = "https://www.googleapis.com/fusiontables/v2/query?sql=SELECT%20humidity%20from%201ioYhIVWgWbysIz4ltA9gR5c_D-sSwVd1QIsZTygg%20WHERE%20nodeid=" + no + "%20ORDER%20BY%20date%20DESC%20LIMIT%201&key=AIzaSyCdl04mmrgRkoxyDgXIRC5cvRaAUJ7d4hk";
+    $.get(query, function (data) {
+        console.log("humidity request for node: " + no + ", " + data.rows[0][0]);
+        return data.rows[0][0];
+    });
+    return -1;
 }
 
 
@@ -39,9 +48,6 @@ function distance(x1,y1,x2,y2){
   if(!y2) y2=0;
   return Math.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)); 
 }
-
-
-
 
 
 function addSensor(x,y,no,name){
