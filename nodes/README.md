@@ -68,6 +68,8 @@ Here are descriptions of each used property in `.env`:
 
 **node_id** - Specifies which node number is reported in the Google Fusion Table.
 
+When the server is run, it will need access to pins on the GPIO. (Running as sudo is the easy and dangerous solution.)  The server will also need access to write to the `sec_storage.enc` file.
+
 
 Google Fusion Table Setup
 -------------------------
