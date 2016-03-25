@@ -12,6 +12,8 @@ from oauth2client import tools
 import argparse
 import ConfigParser
 import os
+import sys
+
 filepath = os.path.dirname(os.path.abspath(__file__))
 
 parser = argparse.ArgumentParser(parents=[tools.argparser])
@@ -50,8 +52,9 @@ def googlePOST(temperature, humidity):
     query.sql(sql=sqlstring).execute()
 
 def main():
-    temp, hum = readDHT22(4);
+    temp, hum = readDHT22(4)
     googlePOST(temp, hum)
+    sys.exit()
 
  
 if __name__ == "__main__":
