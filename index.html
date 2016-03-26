@@ -51,6 +51,7 @@
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile.structure-1.4.5.min.css" /> 
 	<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script> 
 	<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 	<script type="text/javascript" src="RoomScript.js"></script>
 
 </head>
@@ -211,10 +212,14 @@
 	$(document).ready(function() {
 		console.log($( "body" ).pagecontainer("getActivePage"));
 		populateAverage();
+		google.charts.load('current', {packages: ['corechart', 'line']});
 		$( ":mobile-pagecontainer" ).on( "pagecontainershow", function( event, ui ) {
 			switch($.mobile.activePage.attr('id')) {
 				case 'four':
 					populateRawData();
+					$.each(masterPoints, function( index, value) {
+						getRawHistoryData(value.no);
+					});
 					break;
 				case 'one':
 					populateAverage();
