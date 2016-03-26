@@ -35,7 +35,6 @@ function asyncHandleData(nodeid, attr, val) {
 		}
 	});
 	populateAverage();
-	populateRawData();
 
 }
 
@@ -213,35 +212,39 @@ function updateMap(){
 }
 
 function drawChart(arrdata, div) {
-	var data = new google.visualization.DataTable();
-	data.addColumn('string', 'date');
-	data.addColumn('number', 'temperature');
-	data.addColumn('number', 'humidity');
+	if ($('#'+div).children().length == 0) {
+		var data = new google.visualization.DataTable();
+		data.addColumn('string', 'date');
+		data.addColumn('number', 'temperature');
+		data.addColumn('number', 'humidity');
 
-    $.each(arrdata, function(i,entry) {
-        data.addRow([arrdata[i][0],parseFloat(arrdata[i][1]),parseFloat(arrdata[i][2])]);
-    });
+		$.each(arrdata, function(i,entry) {
+			data.addRow([arrdata[i][0],parseFloat(arrdata[i][1]),parseFloat(arrdata[i][2])]);
+		});
 
-	var chart = new google.visualization.LineChart(document.getElementById(div));
-	chart.draw(data, {});
+		var chart = new google.visualization.LineChart(document.getElementById(div));
+		chart.draw(data, {});
+	}
 }
 
 
 function getRawHistoryData(no) {
 	// Make requests for making history data.
     var query = "https://www.googleapis.com/fusiontables/v2/query?sql=SELECT%20date,temperature,humidity%20from%201ioYhIVWgWbysIz4ltA9gR5c_D-sSwVd1QIsZTygg%20WHERE%20nodeid=" + no + "%20ORDER%20BY%20date%20DESC%20LIMIT%2010&key=AIzaSyCdl04mmrgRkoxyDgXIRC5cvRaAUJ7d4hk";
-	var req = $.ajax({url: query, success: function (data) {
-		drawChart(data.rows, 'graph-'+no);
-	}, fail: function() {
-		return req;	
-	}, cache: false});
+	if ($('#graph-'+no).children().length == 0) {
+		var req = $.ajax({url: query, success: function (data) {
+			drawChart(data.rows, 'graph-'+no);
+		}, fail: function() {
+			return req;	
+		}, cache: false});
+	}
 
 }
 
 function populateRawData() {
     //Using the Master Points array, populate the data onto the DOM.
-	$('#noderawview').empty();
-    $.each(masterPoints, function (index, value) {
+    if ($('#noderawview').children().length == 0) {
+	$.each(masterPoints, function (index, value) {
 		var header = '<h3 class="ui-bar ui-bar-a">Node #' + value.no + ', ' + value.name + '<span style="font-size:small"> - Last Update: ' + value.lastUpdated + '</span></h3>';
 		var body = '<div class="ui-grid-a"><div class="ui-block-a"><h3>Temperature:</h3><h1>' + Math.round(value.tempTemperature*100)/100 + '&#176;C</h1></div><div class="ui-block-b"><h3>Humidity:</h3><h1>' + Math.round(value.tempHumidity*100)/100 + '%</h1></div></div><div id="graph-'+value.no+'"></div>';
 		// Why this line below doesn't work... is weird. 
@@ -249,6 +252,7 @@ function populateRawData() {
         $('#noderawview').append(header);
         $('#noderawview').append(body);
 	});
+	}
 }
 
 function populateAverage() {
