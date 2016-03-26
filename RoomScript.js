@@ -251,6 +251,7 @@ function populateRawData() {
 		//var header = $('h3').addClass('ui-bar ui-bar-a').text('Node #' + value.no + ', ' + value.name);
         $('#noderawview').append(header);
         $('#noderawview').append(body);
+        getRawHistoryData(value.no);
 	});
 	}
 }

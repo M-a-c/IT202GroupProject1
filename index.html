@@ -217,9 +217,6 @@
 			switch($.mobile.activePage.attr('id')) {
 				case 'four':
 					populateRawData();
-					$.each(masterPoints, function( index, value) {
-						getRawHistoryData(value.no);
-					});
 					break;
 				case 'one':
 					populateAverage();
