@@ -66,8 +66,8 @@
 
 	<div role="main" class="ui-content">
 		
-		<h3>Average Temperature: </h3><!--if clicked change to f or c..-->
-		<h3>Average Humidity: </h3>
+		<h3>Average Temperature: <span id="avgTemp"></span>&#176;C</h3><!--if clicked change to f or c..-->
+		<h3>Average Humidity: <span id="avgHumi"></span>%</h3>
 
 
 
@@ -210,11 +210,16 @@
 
 	$(document).ready(function() {
 		console.log($( "body" ).pagecontainer("getActivePage"));
-
+		populateAverage();
 		$( ":mobile-pagecontainer" ).on( "pagecontainershow", function( event, ui ) {
-			  if ($.mobile.activePage.attr('id')  == 'four') {
-				populateRawData();
-			  }
+			switch($.mobile.activePage.attr('id')) {
+				case 'four':
+					populateRawData();
+					break;
+				case 'one':
+					populateAverage();
+					break;
+			}
 		});
 	});
 

@@ -27,35 +27,38 @@ function asyncHandleData(nodeid, attr, val) {
 	$.each(masterPoints, function( index, value ) {
 		if (masterPoints[index].no == nodeid) {
 			if (attr == 0) {
-				masterPoints[index].tempHumidity = val;
+				masterPoints[index].tempHumidity = val[0];
 			}else if (attr == 1) {
-				masterPoints[index].tempTemperature = val;
+				masterPoints[index].tempTemperature = val[0];
 			}
+			masterPoints[index].lastUpdated = val[1];
 		}
 	});
+	populateAverage();
+	populateRawData();
 
 }
 
 function getTemperature(no){
     //Make some request.
-    var query = "https://www.googleapis.com/fusiontables/v2/query?sql=SELECT%20temperature%20from%201ioYhIVWgWbysIz4ltA9gR5c_D-sSwVd1QIsZTygg%20WHERE%20nodeid=" + no + "%20ORDER%20BY%20date%20DESC%20LIMIT%201&key=AIzaSyCdl04mmrgRkoxyDgXIRC5cvRaAUJ7d4hk";
-    var req = $.get(query, function (data) {
+    var query = "https://www.googleapis.com/fusiontables/v2/query?sql=SELECT%20temperature,date%20from%201ioYhIVWgWbysIz4ltA9gR5c_D-sSwVd1QIsZTygg%20WHERE%20nodeid=" + no + "%20ORDER%20BY%20date%20DESC%20LIMIT%201&key=AIzaSyCdl04mmrgRkoxyDgXIRC5cvRaAUJ7d4hk";
+    var req = $.ajax({url: query, success: function (data) {
         console.log("temperature request for node: " + no + ", " + data.rows[0][0]);
-		asyncHandleData(no, 1, data.rows[0][0]);
-	}).fail(function() {
+		asyncHandleData(no, 1, data.rows[0]);
+	}, fail: function() {
 		return req;	
-	});
+	}, cache: false});
 }
 
 function getHumidity(no){
     //Make some request.
-    var query = "https://www.googleapis.com/fusiontables/v2/query?sql=SELECT%20humidity%20from%201ioYhIVWgWbysIz4ltA9gR5c_D-sSwVd1QIsZTygg%20WHERE%20nodeid=" + no + "%20ORDER%20BY%20date%20DESC%20LIMIT%201&key=AIzaSyCdl04mmrgRkoxyDgXIRC5cvRaAUJ7d4hk";
-    var req = $.get(query, function (data) {
+    var query = "https://www.googleapis.com/fusiontables/v2/query?sql=SELECT%20humidity,date%20from%201ioYhIVWgWbysIz4ltA9gR5c_D-sSwVd1QIsZTygg%20WHERE%20nodeid=" + no + "%20ORDER%20BY%20date%20DESC%20LIMIT%201&key=AIzaSyCdl04mmrgRkoxyDgXIRC5cvRaAUJ7d4hk";
+    var req = $.ajax({url: query, success: function (data) {
         console.log("humidity request for node: " + no + ", " + data.rows[0][0]);
-        asyncHandleData(no, 0, data.rows[0][0]);
-    }).fail(function() {
+        asyncHandleData(no, 0, data.rows[0]);
+    }, fail: function() {
 		return req;	
-	});
+	}, cache: false});
 }
 
 
@@ -214,7 +217,7 @@ function populateRawData() {
     //Using the Master Points array, populate the data onto the DOM.
 	$('#noderawview').empty();
     $.each(masterPoints, function (index, value) {
-		var header = '<h3 class="ui-bar ui-bar-a">Node #' + value.no + ', ' + value.name;
+		var header = '<h3 class="ui-bar ui-bar-a">Node #' + value.no + ', ' + value.name + '<span style="font-size:small"> - Last Update: ' + value.lastUpdated + '</span></h3>';
 		var body = '<div class="ui-grid-b"><div class="ui-block-a"><h3>Temperature:</h3><h1>' + Math.round(value.tempTemperature*100)/100 + '&#176;C</h1></div><div class="ui-block-b"><h3>Humidity:</h3><h1>' + Math.round(value.tempHumidity*100)/100 + '%</h1></div></div>';
 		// Why this line below doesn't work... is weird. 
 		//var header = $('h3').addClass('ui-bar ui-bar-a').text('Node #' + value.no + ', ' + value.name);
@@ -223,6 +226,22 @@ function populateRawData() {
 	});
 }
 
+function populateAverage() {
+	// Populate average temperatures based on current values.
+	var avgT = 0;
+	var avgH = 0;
+	var count = 0;
+	$.each(masterPoints, function (index, value) {
+		avgT += value.tempTemperature;
+		avgH += value.tempHumidity;
+		if (value.tempTemperature != 0 && value.tempHumidity != 0) {count++; }
+	});
+	avgT = (avgT / count);
+	avgH = (avgH / count);
+	$('#avgTemp').text(Math.round(avgT*100)/100);
+	$('#avgHumi').text(Math.round(avgH*100)/100);
+
+}
 
 humidColorArray = [];
 //1 for each 10%
