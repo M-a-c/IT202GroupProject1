@@ -99,8 +99,8 @@ function interpolateHumidity(ctx,x,y){
 		}
 
 		var temp = Math.floor(distance(x/dx,y/dy,masterPoints[i].x,masterPoints[i].y));
-		masterPoints[i].distance = (1/temp);
-		tempTotalDistance += (1/temp);
+		masterPoints[i].distance = (1/(temp*temp));
+		tempTotalDistance += (1/(temp*temp));
 	}
 	
 	var ret=0;
@@ -109,7 +109,10 @@ function interpolateHumidity(ctx,x,y){
 		masterPoints[i].fraciton = (masterPoints[i].distance/tempTotalDistance);
 		ret += (masterPoints[i].fraciton*masterPoints[i].tempHumidity);
 	}
-	// console.log("?");
+	if (Math.floor(ret)>=100) {
+		ctx.fillStyle = humidColorArray[100]+","+alpha+")";
+		ctx.fillRect(x,y,dx,dy);
+	}
 	if((Math.floor(ret)/10)<10){
 		ctx.fillStyle = humidColorArray[(Math.floor(ret))]+","+alpha+")";
 		ctx.fillRect(x,y,dx,dy);
@@ -190,21 +193,12 @@ function updateMap(){
 	for (var j = 0; j<Y; j++) {
 		xOffset = 0;
 		for (var i = 0; i<X; i++) {
-			// console.log("xoff: "+xOffset+" yoff:"+yOffset+" dx:"+dx+" dy:"+dy);
-			
-			// 
-			// ctx.fillRect(20,20,150,100);
-			// ctx.stroke();
-			// 
 
-			// interpolateTemperature(ctx1,xOffset,yOffset);
-			// ctx1.rect(xOffset,yOffset,dx,dy);
 			interpolateHumidity(ctx2,xOffset,yOffset);
 			// ctx2.rect(xOffset,yOffset,dx,dy);
 
 			xOffset += dx;
 		}
-		// console.log(yOffset);
 		yOffset += dy;
 	}
 	ctx1.stroke();
