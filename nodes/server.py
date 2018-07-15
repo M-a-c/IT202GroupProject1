@@ -10,7 +10,7 @@ from oauth2client import client
 from oauth2client.file import Storage
 from oauth2client import tools
 import argparse
-import ConfigParser
+import configparser
 import os
 import sys
 
@@ -19,7 +19,7 @@ filepath = os.path.dirname(os.path.abspath(__file__))
 parser = argparse.ArgumentParser(parents=[tools.argparser])
 flags = parser.parse_args()
 
-config = ConfigParser.ConfigParser()
+config = configparser.ConfigParser()
 config.read(filepath + '/' + '.env')
 
 # Function to return a tuple with a readout from the sensor: (temperature, humidity)
@@ -28,10 +28,10 @@ def readDHT22(pin, show=False):
     humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
     if humidity is not None and temperature is not None:
         if (show):
-            print 'Temp={0:0.1f}*C  Humidity={1:0.1f}%'.format(temperature, humidity)
+            print ('Temp={0:0.1f}*C  Humidity={1:0.1f}%' % (temperature, humidity))
         return temperature, humidity
     else:
-        print 'Failed to get reading. Try again!'
+        print ('Failed to get reading. Try again!')
 
 # Function to send data to google via OAuth2 and the Google Python API.
 def googlePOST(temperature, humidity):

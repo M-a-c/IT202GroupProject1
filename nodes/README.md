@@ -11,7 +11,7 @@ Additional resources by:
 Requirements / Dependencies
 ---------------------------
 
- * Python 2.7
+ * Python 3.4+
  * Adafruit_Python_DHT (https://github.com/adafruit/Adafruit_Python_DHT.git)
  * Python-dev
  * Python-openssl
@@ -28,13 +28,13 @@ Requirements / Dependencies
 Installation
 ------------
 
- 1. Install Python 2.7 from your preferred distribution package manager.
+ 1. Install Python 3.4 or higher from your preferred distribution package manager.
  2. Install Pip or easy_install for easy Python package management.
  3. Install python_dev & python_openssl via your distribution's package manager or pip/easy_install.
  4. Clone Adafruit_Python_DHT library (See github link in requirement section above)
  5. Change directory into the Adafruit_Python_DHT library and run the following: `sudo python2 setup.py install`
     Make sure you follow any prompts that the install may give you.
- 6. Install Google API Python Client: `pip2 install --upgrade google-api-python-client`
+ 6. Install Google API Python Client: `pip install --upgrade google-api-python-client`. Alternatively, you can use your distibution's package manager.
  6. In the /nodes directory, download the clients secret json file from the Google Developer Console.
  7. Copy .env_example to .env and change the values in that configuration file.
  8. Copy ambientReport.service and ambientReport.timer into `/usr/lib/systemd/system/`.
@@ -44,7 +44,7 @@ Installation
 Running
 -------
 
-`sudo python2 server.py --noauth_local_webserver`
+`sudo python server.py --noauth_local_webserver`
 
 On the first run, the Google API will prompt you to verify the use of the Google Fusions Table API via OAuth2 protocols.
 You will need to copy the URL that it outputs and login with your credentials that have write access to the Google Fusion Table ID referenced in the .env file.
