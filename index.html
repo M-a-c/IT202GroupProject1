@@ -51,6 +51,7 @@
 	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile.structure-1.4.5.min.css" /> 
 	<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script> 
 	<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 	<script type="text/javascript" src="RoomScript.js"></script>
 
 </head>
@@ -66,8 +67,8 @@
 
 	<div role="main" class="ui-content">
 		
-		<h3>Average Temperature: </h3><!--if clicked change to f or c..-->
-		<h3>Average Humidity: </h3>
+		<h3>Average Temperature: <span id="avgTemp"></span>&#176;C</h3><!--if clicked change to f or c..-->
+		<h3>Average Humidity: <span id="avgHumi"></span>%</h3>
 
 
 
@@ -163,6 +164,9 @@
 	</div><!-- /header -->
 
 	<div role="main" class="ui-content">
+		<div id="noderawview">
+
+		</div>
 		<p>
 			<a href="#one" data-direction="reverse" class="ui-btn ui-shadow ui-corner-all ui-btn-b">
 				Main Page
@@ -182,7 +186,7 @@
 	// ctx.fillRect(0,0,75,75);
 	addSensor(68,1,1,"ACM");//ACM (68,1)
 	addSensor(71,2,2,"Server Room");//Server Room (71,2)
-	addSensor(72,38,3,"Wics Room");//Wics Room (72,38)
+	addSensor(72,38,3,"WiCS Room");//Wics Room (72,38)
 	addSensor(33,19,4,"CS Lounge");//CS Lounge (33,19)
 
 	console.log("here");
@@ -205,8 +209,27 @@
 	// // ctx.fillStyle = "rgba(0, 0, 255, 0.5)";
 	// // ctx.fillRect(0,0,ctx.width,ctx.height);
 
-
-
+	$(document).ready(function() {
+		console.log($( "body" ).pagecontainer("getActivePage"));
+		populateAverage();
+		google.charts.load('current', {packages: ['corechart', 'line']});
+		$( ":mobile-pagecontainer" ).on( "pagecontainershow", function( event, ui ) {
+			switch($.mobile.activePage.attr('id')) {
+				case 'four':
+					populateRawData();
+					break;
+				case 'one':
+					populateAverage();
+					break;
+				case 'two':
+					updateAll();
+					break;
+				case 'three':
+					updateAll();
+					break;
+			}
+		});
+	});
 
 </script>
 

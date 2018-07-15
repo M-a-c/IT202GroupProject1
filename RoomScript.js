@@ -9,6 +9,8 @@ var Vertical;
 var dx;
 var dy;
 var alpha = .5;
+var ctx1;
+var ctx2;
 
 var temp=30;
 
@@ -16,20 +18,48 @@ var temp=30;
 /********************************/
 /*								*/
 /*	Read temperature data and 	*/
-/*	other data in funcitons		*/
+/*	other data in functions		*/
 /*			below.				*/
 /*								*/
 /********************************/
 
-function getTemperature(no){
-	//Make some request.
-	temp = temp+9;
-	return temp+9;
+function asyncHandleData(nodeid, attr, val) {
+	// Find object and update attribute.
+	// attr 1 = Temperature, attr 0 = Humidity
+	$.each(masterPoints, function( index, value ) {
+		if (masterPoints[index].no == nodeid) {
+			if (attr == 0) {
+				masterPoints[index].tempHumidity = val[0];
+			}else if (attr == 1) {
+				masterPoints[index].tempTemperature = val[0];
+			}
+			masterPoints[index].lastUpdated = val[1];
+		}
+	});
+	populateAverage();
+
 }
+
+function getTemperature(no){
+    //Make some request.
+    var query = "https://www.googleapis.com/fusiontables/v2/query?sql=SELECT%20temperature,date%20from%201ioYhIVWgWbysIz4ltA9gR5c_D-sSwVd1QIsZTygg%20WHERE%20nodeid=" + no + "%20ORDER%20BY%20date%20DESC%20LIMIT%201&key=AIzaSyCdl04mmrgRkoxyDgXIRC5cvRaAUJ7d4hk";
+    var req = $.ajax({url: query, success: function (data) {
+        console.log("temperature request for node: " + no + ", " + data.rows[0][0]);
+		asyncHandleData(no, 1, data.rows[0]);
+	}, fail: function() {
+		return req;	
+	}, cache: false});
+}
+
 function getHumidity(no){
-	//Make some request.
-	temp = temp+9;
-	return temp+9;
+    //Make some request.
+    var query = "https://www.googleapis.com/fusiontables/v2/query?sql=SELECT%20humidity,date%20from%201ioYhIVWgWbysIz4ltA9gR5c_D-sSwVd1QIsZTygg%20WHERE%20nodeid=" + no + "%20ORDER%20BY%20date%20DESC%20LIMIT%201&key=AIzaSyCdl04mmrgRkoxyDgXIRC5cvRaAUJ7d4hk";
+    var req = $.ajax({url: query, success: function (data) {
+        console.log("humidity request for node: " + no + ", " + data.rows[0][0]);
+        asyncHandleData(no, 0, data.rows[0]);
+    }, fail: function() {
+		return req;	
+	}, cache: false});
 }
 
 
@@ -39,9 +69,6 @@ function distance(x1,y1,x2,y2){
   if(!y2) y2=0;
   return Math.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)); 
 }
-
-
-
 
 
 function addSensor(x,y,no,name){
@@ -57,8 +84,10 @@ function addSensor(x,y,no,name){
 
 	var tempHumidity = getHumidity(no);
 	var tempTemperature = getTemperature(no);
-
-	masterPoints.push({x,y,no,name, tempHumidity, tempTemperature, distance: 0, fraciton: 0 });
+	// Because the get methods are asynchronous, we need to push this after the promise() has been fulfilled.
+	$.when(tempHumidity, tempTemperature).done(function(humi, temp) {
+		masterPoints.push({x,y,no,name, tempHumidity: humi, tempTemperature: temp, distance: 0, fraciton: 0 });
+	});
 }
 
 function interpolateHumidity(ctx,x,y){
@@ -66,14 +95,14 @@ function interpolateHumidity(ctx,x,y){
 
 	for (var i = masterPoints.length - 1; i >= 0; i--) {
 		if (masterPoints[i].y == y/dy && masterPoints[i].x == x/dx) {
-			ctx.fillStyle = humidColorArray[masterPoints[i].tempTemperature]+","+alpha+")";
+			ctx.fillStyle = humidColorArray[masterPoints[i].tempHumidity]+","+alpha+")";
 			ctx.fillRect(x,y,dx,dy);
 			return;
 		}
 
 		var temp = Math.floor(distance(x/dx,y/dy,masterPoints[i].x,masterPoints[i].y));
-		masterPoints[i].distance = (1/temp);
-		tempTotalDistance += (1/temp);
+		masterPoints[i].distance = (1/(temp*temp));
+		tempTotalDistance += (1/(temp*temp));
 	}
 	
 	var ret=0;
@@ -82,7 +111,10 @@ function interpolateHumidity(ctx,x,y){
 		masterPoints[i].fraciton = (masterPoints[i].distance/tempTotalDistance);
 		ret += (masterPoints[i].fraciton*masterPoints[i].tempHumidity);
 	}
-	// console.log("?");
+	if (Math.floor(ret)>=100) {
+		ctx.fillStyle = humidColorArray[100]+","+alpha+")";
+		ctx.fillRect(x,y,dx,dy);
+	}
 	if((Math.floor(ret)/10)<10){
 		ctx.fillStyle = humidColorArray[(Math.floor(ret))]+","+alpha+")";
 		ctx.fillRect(x,y,dx,dy);
@@ -92,29 +124,38 @@ function interpolateHumidity(ctx,x,y){
 }
 
 
-// function interpolateHumidity(ctx,x,y){
-// 	var tempTotalDistance=0;
+function interpolateTemperature(ctx,x,y){
+	var tempTotalDistance=0;
 
-// 	for (var i = masterPoints.length - 1; i >= 0; i--) {
-// 		if (masterPoints[i].y == y/dy && masterPoints[i].x == x/dx) {
-// 			return;
-// 		}
+	for (var i = masterPoints.length - 1; i >= 0; i--) {
+		if (masterPoints[i].y == y/dy && masterPoints[i].x == x/dx) {
+			ctx.fillStyle = humidColorArray[(Math.floor(((masterPoints[i].tempTemperature*9)/5)+32))]+","+alpha+")";
+			ctx.fillRect(x,y,dx,dy);
+			return;
+		}
 
-// 		var temp = Math.floor(distance(x/dx,y/dy,masterPoints[i].x,masterPoints[i].y));
-// 		masterPoints[i].distance = (1/temp);
-// 		tempTotalDistance += (1/temp);
-// 	}
+		var temp = Math.floor(distance(x/dx,y/dy,masterPoints[i].x,masterPoints[i].y));
+		masterPoints[i].distance = (1/(temp*temp));
+		tempTotalDistance += (1/(temp*temp));
+	}
 	
-// 	var ret=0;
-// 	// var killme=0;
-// 	for (var i = masterPoints.length - 1; i >= 0; i--) {
-// 		masterPoints[i].fraciton = (masterPoints[i].distance/tempTotalDistance);
-// 		ret += (masterPoints[i].fraciton*masterPoints[i].tempTemperature);
-// 	}
+	var ret=0;
+	// var killme=0;
+	for (var i = masterPoints.length - 1; i >= 0; i--) {
+		masterPoints[i].fraciton = (masterPoints[i].distance/tempTotalDistance);
+		ret += (masterPoints[i].fraciton*(((masterPoints[i].tempTemperature*9)/5)+32));
+	}
+	if (Math.floor(ret)>=100) {
+		ctx.fillStyle = humidColorArray[100]+","+alpha+")";
+		ctx.fillRect(x,y,dx,dy);
+	}
+	if((Math.floor(ret)/10)<10){
+		ctx.fillStyle = humidColorArray[(Math.floor(ret))]+","+alpha+")";
+		ctx.fillRect(x,y,dx,dy);
+	}
 
-// 	return ret;
-// }
-
+	// return ret;
+}
 
 function p(){
 	for (var i = masterPoints.length - 1; i >= 0; i--) {
@@ -129,6 +170,8 @@ function p(){
 }
 
 function updateAll(){
+	ctx1.clearRect(0, 0, 6000, 3000);
+	ctx2.clearRect(0, 0, 6000, 3000);
 	for (var i = masterPoints.length - 1; i >= 0; i--) {
 		// console.log(masterPoints[i]);
 		//Read new data.
@@ -147,8 +190,8 @@ function drawBoxes(horizontalSquares,VerticalSquares){
 
 function updateMap(){
 	//Updates the rest of the map.
-	var ctx1 = heatMap.getContext("2d");
-	var ctx2 = humidMap.getContext("2d");
+	ctx1 = heatMap.getContext("2d");
+	ctx2 = humidMap.getContext("2d");
 	X = horizontal;
 	Y = Vertical;
 	
@@ -163,30 +206,80 @@ function updateMap(){
 	for (var j = 0; j<Y; j++) {
 		xOffset = 0;
 		for (var i = 0; i<X; i++) {
-			// console.log("xoff: "+xOffset+" yoff:"+yOffset+" dx:"+dx+" dy:"+dy);
-			
-			// 
-			// ctx.fillRect(20,20,150,100);
-			// ctx.stroke();
-			// 
 
-			// interpolateTemperature(ctx1,xOffset,yOffset);
-			// ctx1.rect(xOffset,yOffset,dx,dy);
+			interpolateTemperature(ctx1,xOffset,yOffset);
 			interpolateHumidity(ctx2,xOffset,yOffset);
 			// ctx2.rect(xOffset,yOffset,dx,dy);
 
 			xOffset += dx;
 		}
-		// console.log(yOffset);
 		yOffset += dy;
 	}
 	ctx1.stroke();
 	ctx2.stroke();
 }
 
+function drawChart(arrdata, div) {
+	if ($('#'+div).children().length == 0) {
+		var data = new google.visualization.DataTable();
+		data.addColumn('string', 'date');
+		data.addColumn('number', 'temperature');
+		data.addColumn('number', 'humidity');
+
+		$.each(arrdata, function(i,entry) {
+			data.addRow([arrdata[i][0],parseFloat(arrdata[i][1]),parseFloat(arrdata[i][2])]);
+		});
+
+		var chart = new google.visualization.LineChart(document.getElementById(div));
+		chart.draw(data, {});
+	}
+}
 
 
+function getRawHistoryData(no) {
+	// Make requests for making history data.
+    var query = "https://www.googleapis.com/fusiontables/v2/query?sql=SELECT%20date,temperature,humidity%20from%201ioYhIVWgWbysIz4ltA9gR5c_D-sSwVd1QIsZTygg%20WHERE%20nodeid=" + no + "%20ORDER%20BY%20date%20DESC%20LIMIT%2010&key=AIzaSyCdl04mmrgRkoxyDgXIRC5cvRaAUJ7d4hk";
+	if ($('#graph-'+no).children().length == 0) {
+		var req = $.ajax({url: query, success: function (data) {
+			drawChart(data.rows, 'graph-'+no);
+		}, fail: function() {
+			return req;	
+		}, cache: false});
+	}
 
+}
+
+function populateRawData() {
+    //Using the Master Points array, populate the data onto the DOM.
+    if ($('#noderawview').children().length == 0) {
+	$.each(masterPoints, function (index, value) {
+		var header = '<h3 class="ui-bar ui-bar-a">Node #' + value.no + ', ' + value.name + '<span style="font-size:small"> - Last Update: ' + value.lastUpdated + '</span></h3>';
+		var body = '<div class="ui-grid-a"><div class="ui-block-a"><h3>Temperature:</h3><h1>' + Math.round(value.tempTemperature*100)/100 + '&#176;C</h1></div><div class="ui-block-b"><h3>Humidity:</h3><h1>' + Math.round(value.tempHumidity*100)/100 + '%</h1></div></div><div id="graph-'+value.no+'"></div>';
+		// Why this line below doesn't work... is weird. 
+		//var header = $('h3').addClass('ui-bar ui-bar-a').text('Node #' + value.no + ', ' + value.name);
+        $('#noderawview').append(header);
+        $('#noderawview').append(body);
+        getRawHistoryData(value.no);
+	});
+	}
+}
+
+function populateAverage() {
+	// Populate average temperatures based on current values.
+	var avgT = 0;
+	var avgH = 0;
+	var count = 0;
+	$.each(masterPoints, function (index, value) {
+		avgT += value.tempTemperature;
+		avgH += value.tempHumidity;
+		if (value.tempTemperature != 0 && value.tempHumidity != 0) {count++; }
+	});
+	avgT = (avgT / count);
+	avgH = (avgH / count);
+	$('#avgTemp').text(Math.round(avgT*100)/100);
+	$('#avgHumi').text(Math.round(avgH*100)/100);
+
+}
 
 humidColorArray = [];
 //1 for each 10%
